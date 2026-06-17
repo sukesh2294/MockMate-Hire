@@ -22,4 +22,3 @@ steps:
 
   - name: Success
     run: echo "GitHub Actions working"
-```

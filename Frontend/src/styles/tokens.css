@@ -1,0 +1,74 @@
+@theme {
+  /* Brand */
+  --color-brand-dark: #4038c8;
+  --color-brand-primary: #5b52e8;
+  --color-brand-tint: #8b80ff;
+  --color-brand-secondary: #7b2fff;
+
+  /* Accent & Semantic */
+  --color-accent-sky: #0099cc;
+  --color-warning: #d4930b;
+  --color-info: #e8651a;
+  --color-success: #00a67e;
+  --color-error: #e53e3e;
+  --color-premium: #c026d3;
+
+  /* Backgrounds */
+  --color-bg-base: #f7f8fc;
+  --color-bg-card: #ffffff;
+  --color-bg-subtle: #eef0f8;
+  --color-bg-elevated: #e8eafb;
+  --color-bg-brand: #eae9ff;
+  --color-bg-border: #dde1f0;
+
+  /* Text */
+  --color-text-primary: #0f1117;
+  --color-text-secondary: #2d3148;
+  --color-text-tertiary: #4a5173;
+  --color-text-muted: #8892a4;
+  --color-text-subtle: #b8bedd;
+
+  /* Borders */
+  --color-border-default: #dde1f0;
+  --color-border-strong: #b8bedd;
+  --color-border-accent: #5b52e8;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Consolas, monospace;
+
+  /* Spacing scale */
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-10: 2.5rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+
+  /* Border radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(15, 17, 23, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 17, 23, 0.06), 0 1px 2px rgba(15, 17, 23, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(15, 17, 23, 0.06), 0 2px 4px -2px rgba(15, 17, 23, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 17, 23, 0.08), 0 4px 6px -4px rgba(15, 17, 23, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 17, 23, 0.08), 0 8px 10px -6px rgba(15, 17, 23, 0.04);
+}
+
+:root {
+  --gradient-brand: linear-gradient(135deg, #5b52e8 0%, #7b2fff 50%, #0099cc 100%);
+  --gradient-brand-subtle: linear-gradient(135deg, rgba(91, 82, 232, 0.08) 0%, rgba(123, 47, 255, 0.06) 50%, rgba(0, 153, 204, 0.04) 100%);
+}

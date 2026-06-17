@@ -1,0 +1,16 @@
+import { lazy } from 'react'
+
+export const LandingPage = lazy(() => import('../pages/LandingPage'))
+export const LoginPage = lazy(() => import('../pages/auth/LoginPage'))
+export const SignupPage = lazy(() => import('../pages/auth/SignupPage'))
+export const DashboardPage = lazy(() => import('../pages/recruiter/DashboardPage'))
+export const InterviewsPage = lazy(() => import('../pages/recruiter/InterviewsPage'))
+export const CreateInterviewPage = lazy(() => import('../pages/recruiter/CreateInterviewPage'))
+export const CandidatesPage = lazy(() => import('../pages/recruiter/CandidatesPage'))
+export const CandidatePortalPage = lazy(() => import('../pages/candidate/CandidatePortalPage'))
+export const CandidateDashboardPage = lazy(() => import('../pages/candidate/CandidateDashboardPage'))
+export const InterviewRoomPage = lazy(() => import('../pages/interview/InterviewRoomPage'))
+export const ReportsPage = lazy(() => import('../pages/recruiter/ReportsPage'))
+export const ProfilePage = lazy(() => import('../pages/recruiter/ProfilePage'))
+export const SettingsPage = lazy(() => import('../pages/recruiter/SettingsPage'))
+export const NotFoundPage = lazy(() => import('../pages/NotFoundPage'))

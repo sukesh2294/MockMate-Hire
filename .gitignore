@@ -1,0 +1,19 @@
+# Ignore local environment files
+*.env
+*.env.local
+
+# Ignore Python virtual environments
+.venv/
+*/.venv/
+
+# Ignore Node dependencies and build output
+node_modules/
+dist/
+
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+
+# Ignore system files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,27 @@
+fastapi==0.111.1
+uvicorn[standard]==0.23.2
+sqlalchemy[asyncio]==2.0.41
+asyncpg==0.27.0
+python-jose[cryptography]==3.3.0
+python-dotenv==1.2.2
+httpx==0.28.1
+pydantic==2.11.0
+pydantic-settings==2.10.0
+aiosqlite==0.20.0
+pypdf==4.3.1
+python-multipart==0.0.8
+
+# LiveKit & Agent dependencies
+livekit-api>=0.5.0
+chromadb>=0.4.24
+langchain>=0.1.0
+langchain-chroma>=0.1.0
+langchain-community>=0.0.20
+langchain-core>=0.1.20
+langchain-google-genai>=1.0.0
+langchain-openai>=0.0.6
+langchain-text-splitters>=0.0.1
+langgraph>=0.0.26
+livekit-agents[cartesia,deepgram,openai,silero,turn-detector]>=0.7.0
+livekit-plugins-langchain>=0.1.0
+livekit-plugins-noise-cancellation>=0.1.0

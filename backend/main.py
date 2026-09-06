@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description=(
-        "Virento Hire backend API for interviews, "
+        "MockMate Hire backend API for interviews, "
         "candidate evaluation and LiveKit orchestration."
     ),
     version="1.0.0",

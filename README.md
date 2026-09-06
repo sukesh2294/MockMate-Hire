@@ -1,4 +1,4 @@
-# Virento Hire
+# MockMate Hire
 
 ![Frontend](https://img.shields.io/badge/frontend-React%2019-61DAFB)
 ![Backend](https://img.shields.io/badge/backend-FastAPI-009688)
@@ -7,13 +7,13 @@
 ![Status](https://img.shields.io/badge/status-production-ready-brightgreen)
 ![License](https://img.shields.io/badge/license-Unspecified-lightgrey)
 
-> Virento Hire is a recruiter and candidate interview platform with LiveKit-powered interview rooms, Clerk authentication, resume analysis, recruiter dashboards, and interview evaluation workflows.
+> MockMate Hire is a recruiter and candidate interview platform with LiveKit-powered interview rooms, Clerk authentication, resume analysis, recruiter dashboards, and interview evaluation workflows.
 
 ---
 
 ## Project Overview
 
-Virento Hire is a hiring platform built to support recruiters and candidates during interview sessions. The app combines a React/Vite frontend with a FastAPI backend, LiveKit video conferencing, Clerk authentication, and AI-driven candidate resume/interview analysis.
+MockMate Hire is a hiring platform built to support recruiters and candidates during interview sessions. The app combines a React/Vite frontend with a FastAPI backend, LiveKit video conferencing, Clerk authentication, and AI-driven candidate resume/interview analysis.
 
 ### What it does
 
@@ -117,7 +117,7 @@ flowchart LR
 ## Folder Structure
 
 ```text
-VirentoHire/
+MockMateHire/
 ├── backend/
 │   ├── app/
 │   │   ├── agents/             # LiveKit agent and AI agent utilities
@@ -173,7 +173,7 @@ VirentoHire/
 Create `backend/.env` from `backend/.env.example` and set values.
 
 ```env
-DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/virento_hire
+DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/MockMate_hire
 CLERK_JWK_URL=https://your-clerk-domain/.well-known/jwks.json
 CLERK_ISSUER=https://issuer.clerk.dev
 LIVEKIT_API_KEY=livekit_api_key
@@ -183,7 +183,7 @@ RESUME_STORAGE_DIR=./storage/resumes
 ALLOW_ORIGINS=["http://localhost:5173","http://localhost:8000"]
 ```
 
-- `DATABASE_URL` — required. Example: `postgresql+asyncpg://user:pass@localhost:5432/virento_hire`.
+- `DATABASE_URL` — required. Example: `postgresql+asyncpg://user:pass@localhost:5432/MockMate_hire`.
 - `CLERK_JWK_URL` — required. Clerk JWK set URL for JWT validation.
 - `CLERK_ISSUER` — required. Clerk issuer URL for JWT checks.
 - `LIVEKIT_API_KEY` — required. LiveKit API key for token generation.
@@ -318,8 +318,8 @@ Required env vars:
 Build and run the backend:
 
 ```bash
-docker build -t virento-hire-backend ./backend
-docker run -d -p 8000:8000 --env-file backend/.env virento-hire-backend
+docker build -t MockMate-hire-backend ./backend
+docker run -d -p 8000:8000 --env-file backend/.env MockMate-hire-backend
 ```
 
 Build and serve the frontend using any static host, or deploy the `Frontend/dist` folder.
@@ -426,7 +426,7 @@ jobs:
 ### Health
 
 - `GET /api/health/ping`
-  - Response: `{ status: "ok", message: "Virento Hire backend is running" }`
+  - Response: `{ status: "ok", message: "MockMate Hire backend is running" }`
 
 ### Auth
 
@@ -519,7 +519,7 @@ jobs:
 
 ## Contributors
 
-- Virento Hire Team
+- MockMate Hire Team
 - Engineering, design, and product contributors supporting recruiter interview workflows
 
 ---

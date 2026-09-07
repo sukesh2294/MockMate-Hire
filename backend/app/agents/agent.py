@@ -178,6 +178,8 @@ from livekit.agents import AgentServer, AgentSession, Agent, inference, room_io,
 from livekit.plugins import silero, langchain, openai, cartesia, deepgram
 import livekit.plugins.langchain.langgraph as lk_langgraph
 
+from livekit.agents import WorkerOptions, cli
+
 load_dotenv()
 load_dotenv(".env")
 load_dotenv(".env.local")
@@ -345,5 +347,17 @@ async def my_agent(ctx: agents.JobContext):
         print(f"Initial reply failed for room {room_name}: {exc!r}")
 
 
+# if __name__ == "__main__":
+#     agents.cli.run_app(server)
+
+
 if __name__ == "__main__":
-    agents.cli.run_app(server)
+    cli.run_app(
+        WorkerOptions(
+            entrypoint_fnc=entrypoint,
+            # Render Free Tier ke liye process count aur load threshold optimize karein:
+            num_idle_processes=0,       # Idle fork band karein taaki startup load na badhe
+            load_threshold=0.99,        # Threshold badhayein taaki container mark available rahe
+            prewarm_fnc=None,           # Startup freeze aur time-out warning se bachne ke liye
+        )
+    )

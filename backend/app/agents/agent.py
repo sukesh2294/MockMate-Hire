@@ -354,7 +354,7 @@ async def my_agent(ctx: agents.JobContext):
 if __name__ == "__main__":
     cli.run_app(
         WorkerOptions(
-            entrypoint_fnc=entrypoint,
+            entrypoint_fnc=my_agent,
             # Render Free Tier ke liye process count aur load threshold optimize karein:
             num_idle_processes=0,       # Idle fork band karein taaki startup load na badhe
             load_threshold=0.99,        # Threshold badhayein taaki container mark available rahe

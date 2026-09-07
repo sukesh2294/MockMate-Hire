@@ -20,15 +20,31 @@ export function AvatarContainer() {
 
     const updateTracks = () => {
       // Find remote participants (the AI agent)
-      const participants = Array.from(room.participants.values())
-      const agent = participants.find((p) => p.identity.toLowerCase().includes('agent') || p.identity.toLowerCase().includes('interviewer'))
-      
+      const participantsMap = room.remoteParticipants || room.participants
+      if (!participantsMap) {
+        setAgentVideoTrack(null)
+        return
+      }
+
+      const participants = Array.from(participantsMap.values())
+      const agent = participants.find(
+        (p) =>
+          p.identity?.toLowerCase().includes('agent') ||
+          p.identity?.toLowerCase().includes('interviewer')
+      )
+
       if (agent) {
-        const videoPublications = Array.from(agent.videoTracks.values())
+        const videoTracksMap = agent.videoTrackPublications || agent.videoTracks
+        const videoPublications = videoTracksMap ? Array.from(videoTracksMap.values()) : []
         // Get the first subscribed/active video track
         const activePub = videoPublications.find((pub) => pub.track !== undefined)
         if (activePub && activePub.track) {
-          setAgentVideoTrack(activePub.track)
+          setAgentVideoTrack({
+            participant: agent,
+            publication: activePub,
+            track: activePub.track,
+            source: activePub.source || 'camera',
+          })
         } else {
           setAgentVideoTrack(null)
         }

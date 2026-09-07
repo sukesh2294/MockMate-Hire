@@ -25,7 +25,21 @@ export function ResumeUpload({ onComplete, onAnalyze }) {
     setLoading(true)
     try {
       const result = await onAnalyze(file)
-      setAnalysis(result)
+      const data = result?.resume || result || {}
+      const skills = Array.isArray(data.skills) ? data.skills : []
+      const insight = data.insight || (skills.length > 0 ? `Demonstrates core experience in ${skills.slice(0, 3).join(', ')}.` : 'Parsed candidate technical profile successfully.')
+      const question = data.personalizedQuestion || data.personalized_question || 'Could you walk through one of the technical projects highlighted on your resume?'
+
+      setAnalysis({
+        ...data,
+        skills,
+        insight,
+        personalizedQuestion: question,
+        rawResult: result,
+      })
+    } catch (err) {
+      console.error('Failed to analyze resume:', err)
+      alert(err.message || 'Error processing resume upload.')
     } finally {
       setLoading(false)
     }
@@ -98,18 +112,20 @@ export function ResumeUpload({ onComplete, onAnalyze }) {
             <p className="text-sm text-text-secondary italic">&ldquo;{analysis.insight}&rdquo;</p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {analysis.skills.map((skill) => (
-              <Badge key={skill} variant="primary">{skill}</Badge>
-            ))}
-          </div>
+          {Array.isArray(analysis.skills) && analysis.skills.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {analysis.skills.map((skill, index) => (
+                <Badge key={index} variant="primary">{skill}</Badge>
+              ))}
+            </div>
+          )}
 
           <div className="p-4 rounded-xl bg-bg-brand/30 border border-brand-primary/20">
             <p className="text-xs font-medium text-brand-primary mb-1">Personalized Question Preview</p>
             <p className="text-sm text-text-primary">{analysis.personalizedQuestion}</p>
           </div>
 
-          <Button onClick={() => onComplete(analysis)} className="w-full">
+          <Button onClick={() => onComplete(analysis.rawResult || analysis)} className="w-full">
             Continue to Interview
           </Button>
         </motion.div>

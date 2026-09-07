@@ -1,5 +1,6 @@
 from app.models.answer import Answer
 from app.models.interview import Interview
+from app.models.practice import PracticeSession, PracticeLog
 from app.models.question import Question
 from app.models.recording import Recording
 from app.models.report import Report
@@ -10,6 +11,8 @@ from app.models.user import User
 __all__ = [
     "Answer",
     "Interview",
+    "PracticeSession",
+    "PracticeLog",
     "Question",
     "Recording",
     "Report",
@@ -17,3 +20,4 @@ __all__ = [
     "InterviewSession",
     "User",
 ]
+

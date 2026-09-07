@@ -46,13 +46,22 @@ function PermissionItem({ icon: Icon, title, description, status, onRequest, act
 export default function CandidatePortalPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { camera, microphone, browserCompatible, requestCamera, requestMicrophone, allGranted } = useMediaPermissions()
+  const {
+    camera,
+    microphone,
+    screenShare,
+    browserCompatible,
+    requestCamera,
+    requestMicrophone,
+    requestScreenShare,
+    allGranted,
+  } = useMediaPermissions()
   const [step, setStep] = useState(0)
   const [agreed, setAgreed] = useState(false)
 
   const handleResumeComplete = (result) => {
-    const analysis = result.resume
-    sessionStorage.setItem('candidateName', analysis.candidate_name || 'Sukesh')
+    const analysis = result?.resume || result || {}
+    sessionStorage.setItem('candidateName', analysis.candidate_name || 'Candidate')
     sessionStorage.setItem('resumeAnalysis', JSON.stringify(analysis))
     navigate(`/interview/${id}`)
   }
@@ -134,6 +143,14 @@ export default function CandidatePortalPage() {
                   status={microphone.status}
                   onRequest={requestMicrophone}
                   actionLabel="Enable Microphone"
+                />
+                <PermissionItem
+                  icon={Monitor}
+                  title="Screen Share Permission"
+                  description="Required to show your live screen to the interviewer during the interview."
+                  status={screenShare.status}
+                  onRequest={requestScreenShare}
+                  actionLabel="Enable Screen Share"
                 />
               </div>
 

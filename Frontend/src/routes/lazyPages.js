@@ -9,6 +9,7 @@ export const CreateInterviewPage = lazy(() => import('../pages/recruiter/CreateI
 export const CandidatesPage = lazy(() => import('../pages/recruiter/CandidatesPage'))
 export const CandidatePortalPage = lazy(() => import('../pages/candidate/CandidatePortalPage'))
 export const CandidateDashboardPage = lazy(() => import('../pages/candidate/CandidateDashboardPage'))
+export const PracticeDashboardPage = lazy(() => import('../pages/candidate/PracticeDashboardPage'))
 export const InterviewRoomPage = lazy(() => import('../pages/interview/InterviewRoomPage'))
 export const ReportsPage = lazy(() => import('../pages/recruiter/ReportsPage'))
 export const ProfilePage = lazy(() => import('../pages/recruiter/ProfilePage'))

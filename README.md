@@ -1,5 +1,271 @@
 # MockMate Hire
 
+MockMate Hire is an AI-assisted interview platform for recruiters and candidates. It combines a React/Vite frontend, a FastAPI backend, Clerk authentication, LiveKit real-time rooms, resume analysis, AI interview evaluation, and a dedicated AI practice mode.
+
+## Current Features
+
+- Recruiter dashboard, interview creation, candidate management, reports, profile, and settings.
+- Candidate portal with browser compatibility, camera, microphone, and screen-share permissions.
+- Resume upload and analysis for personalized interview questions.
+- Live interview rooms using LiveKit audio and screen sharing.
+- Live AI interviewer agent using LiveKit Agents, Deepgram STT, Gemini/LangGraph, and Cartesia TTS.
+- AI Practice Mode with selectable domain, difficulty, question count, and resume personalization.
+- Practice-mode LiveKit room with AI interviewer audio and avatar speaking state.
+- Text answer evaluation across technical accuracy, clarity/STAR structure, keyword match, feedback, and suggested answers.
+- Practice quizzes, flashcards, analytics, history, and readiness metrics.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  Browser[React/Vite frontend] -->|Clerk JWT + REST| API[FastAPI backend]
+  Browser -->|LiveKit token| API
+  Browser -->|WebRTC audio and screen share| LK[LiveKit Cloud]
+  Agent[LiveKit AI agent] -->|STT / LLM / TTS| Providers[Deepgram + Gemini + Cartesia]
+  Agent --> LK
+  API --> DB[(SQLite or PostgreSQL)]
+  API --> Files[Resume storage]
+```
+
+### Interview flow
+
+1. The candidate authenticates with Clerk.
+2. The candidate grants camera, microphone, and screen-share access.
+3. The frontend creates an interview session and requests a LiveKit token.
+4. The backend creates a room name in the form `{session_id}-{interview_id}`.
+5. The LiveKit agent joins the room, loads interview questions, and generates the first reply.
+6. Deepgram transcribes candidate audio and Cartesia publishes agent speech.
+7. The frontend renders the agent avatar, transcript, candidate camera preview, and shared screen.
+
+### Practice flow
+
+1. `POST /api/practice/start` creates a `PracticeSession` and generates questions.
+2. The frontend requests a practice token with `mode: "practice"`.
+3. The backend creates a room named `practice-{practice_session_id}`.
+4. The agent detects the practice room, loads the session topic and questions, and speaks through LiveKit.
+5. The candidate can answer by voice or text.
+6. Text answers are evaluated through `POST /api/practice/evaluate`.
+
+## Repository Structure
+
+```text
+MockMate Hire/
+├── backend/
+│   ├── app/
+│   │   ├── agents/             # LiveKit agent and LangGraph workflow
+│   │   ├── api/routes/         # FastAPI endpoints
+│   │   ├── core/               # Settings and environment loading
+│   │   ├── db/                 # Async SQLAlchemy engine and base
+│   │   ├── models/             # User, interview, practice, answer, report models
+│   │   ├── schemas/            # Pydantic request and response schemas
+│   │   ├── services/           # Resume, interview, practice, LiveKit services
+│   │   └── rag/                # Chroma company knowledge store
+│   ├── main.py                 # FastAPI entrypoint
+│   ├── requirements.txt
+│   └── .env                    # Local secrets, never commit
+├── Frontend/
+│   ├── src/
+│   │   ├── pages/              # Candidate, recruiter, auth, and interview pages
+│   │   ├── components/         # UI, avatar, interview, and practice components
+│   │   ├── services/           # API and LiveKit clients
+│   │   ├── hooks/              # Media permissions and interview timer
+│   │   └── routes/             # React Router configuration
+│   ├── package.json
+│   └── .env
+└── README.md
+```
+
+## Prerequisites
+
+- Python 3.11+
+- Node.js 20+
+- npm 10+
+- A Clerk application
+- A LiveKit Cloud project
+- Deepgram API key for speech-to-text
+- Cartesia API key for text-to-speech
+- Google Gemini API key for LangGraph responses
+
+## Environment Variables
+
+Create `backend/.env`:
+
+```env
+DATABASE_URL=sqlite+aiosqlite:///./MockMate.db
+
+CLERK_JWK_URL=https://your-clerk-domain/.well-known/jwks.json
+CLERK_ISSUER=https://your-clerk-domain
+
+LIVEKIT_API_KEY=your_livekit_api_key
+LIVEKIT_API_SECRET=your_livekit_api_secret
+LIVEKIT_URL=wss://your-project.livekit.cloud
+
+GOOGLE_API_KEY=your_google_api_key
+GEMINI_MODEL=gemini-3.6-flash
+DEEPGRAM_API_KEY=your_deepgram_api_key
+CARTESIA_API_KEY=your_cartesia_api_key
+CARTESIA_MODEL=sonic-3
+CARTESIA_VOICE_ID=f786b574-daa5-4673-aa0c-cbe3e8534c02
+
+RESUME_STORAGE_DIR=./storage/resumes
+ALLOW_ORIGINS=["http://localhost:5173","http://127.0.0.1:5173"]
+```
+
+Create `Frontend/.env`:
+
+```env
+VITE_API_URL=http://localhost:8000/api
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_key
+```
+
+The frontend receives the LiveKit URL from `/api/livekit/token`; no separate frontend LiveKit URL variable is required.
+
+Never commit `.env` files or expose API secrets in browser code.
+
+## Local Development
+
+### Backend API
+
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+API URLs:
+
+- `http://localhost:8000/docs`
+- `http://localhost:8000/api/health/ping`
+
+### LiveKit AI agent
+
+Keep the backend API and the agent running in separate terminals:
+
+```powershell
+cd backend
+.\.venv\Scripts\Activate.ps1
+python -m app.agents.agent dev
+```
+
+The LiveKit CLI now recommends this command for hot reload:
+
+```powershell
+lk agent dev
+```
+
+The Python `dev` command may print a deprecation warning, but it still starts the worker with the current dependencies.
+
+### Frontend
+
+```powershell
+cd Frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`.
+
+Run a production build with:
+
+```powershell
+cd Frontend
+npm run build
+```
+
+## API Summary
+
+All application endpoints are prefixed with `/api` and require Clerk authentication unless stated otherwise.
+
+| Area               | Endpoints                                                 |
+| ------------------ | --------------------------------------------------------- |
+| Health             | `GET /health/ping`                                        |
+| Auth               | `GET /me`                                                 |
+| Interviews         | `GET/POST /interviews`, `GET/PUT/DELETE /interviews/{id}` |
+| Interview analysis | `POST /interviews/{id}/analysis`                          |
+| Candidate resume   | `POST /candidates/me/resume`                              |
+| LiveKit            | `POST /livekit/token`                                     |
+| Practice           | `POST /practice/start`, `POST /practice/evaluate`         |
+| Practice history   | `GET /practice/history`                                   |
+| Practice analytics | `GET /practice/analytics`                                 |
+| Practice quizzes   | `GET /practice/quizzes?topic=Frontend`                    |
+| Reports            | `GET /reports/{candidate_id}`                             |
+
+## LiveKit Notes
+
+- Interview rooms use `{session_id}-{interview_id}`.
+- Practice rooms use `practice-{practice_session_id}`.
+- `RoomAudioRenderer` must remain mounted inside the LiveKit room to hear remote agent audio.
+- Screen sharing must start from a user click because browsers do not allow silent `getDisplayMedia` calls.
+- The agent publishes speech only when the TTS provider returns audio frames.
+- Cartesia is configured with the current `sonic-3` model and a valid voice ID.
+- The external LiveKit Cloud embed popup is not used. The frontend connects directly through `LiveKitRoom`.
+
+## Troubleshooting
+
+### Agent is connected but silent
+
+Check the agent terminal for:
+
+```text
+Established new Cartesia TTS WebSocket connection
+Initial reply generated
+```
+
+If the log says `no audio frames were pushed`, verify `CARTESIA_API_KEY`, `CARTESIA_MODEL`, and `CARTESIA_VOICE_ID`. Also confirm that the agent is running from `backend` with the project `.venv` active.
+
+### Practice room returns 422
+
+The practice request must include:
+
+```json
+{
+  "mode": "practice",
+  "practice_session_id": "...",
+  "identity": "Candidate",
+  "room_name": "..."
+}
+```
+
+Restart the backend after changing `livekit.py` or the LiveKit route schema.
+
+### Browser cannot hear audio
+
+- Confirm the page is connected to the LiveKit room.
+- Confirm `RoomAudioRenderer` is mounted inside `LiveKitRoom`.
+- Check browser tab permissions and output volume.
+- Test with headphones to avoid feedback from microphone input.
+
+### Backend reload errors
+
+Run the API from `backend`, not from `Frontend`:
+
+```powershell
+cd backend
+uvicorn main:app --reload --port 8000
+```
+
+Run frontend npm commands only from `Frontend`, where `package.json` exists.
+
+## Validation
+
+```powershell
+cd Frontend
+npm run build
+```
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m py_compile app\agents\agent.py app\api\routes\livekit.py app\schemas\livekit.py
+```
+
+The Vite build may report a chunk-size warning for the interview room bundle; this is a performance warning, not a build failure.
+
+## Development Status
+
+This repository is under active development. Local interview and practice flows are implemented, but deployment configuration, automated tests, observability, and production hardening should be completed before treating the system as production-ready.
+
 ![Frontend](https://img.shields.io/badge/frontend-React%2019-61DAFB)
 ![Backend](https://img.shields.io/badge/backend-FastAPI-009688)
 ![Database](https://img.shields.io/badge/database-SQLAlchemy%2FAsync-4B8BBE)
@@ -224,6 +490,10 @@ Run the backend:
 
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+```bash
+python -m app.agents.agent dev
 ```
 
 Available locally:

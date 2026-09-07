@@ -37,6 +37,25 @@ export default function CandidateDashboardPage() {
         </Card>
       </div>
 
+      {/* AI Practice & Mock Interview Callout Banner */}
+      <Card className="p-6 bg-gradient-to-r from-brand-primary/10 via-bg-card to-accent-sky/10 border-brand-primary/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Badge variant="premium" className="text-xs">NEW</Badge>
+            <h3 className="text-base font-bold text-text-primary">AI Practice & Mock Interview Hub</h3>
+          </div>
+          <p className="text-xs text-text-tertiary max-w-xl">
+            Sharpen your Python Backend, System Design, Frontend or HR skills before recruiter interviews. Get instant 4-parameter feedback & STAR sample answers.
+          </p>
+        </div>
+        <Link to="/candidate/practice">
+          <Button variant="primary" icon={Play} className="shrink-0">
+            Start Mock Practice
+          </Button>
+        </Link>
+      </Card>
+
+
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-text-primary">Interview List</h2>
         {candidateInterviews.map((interview, index) => {

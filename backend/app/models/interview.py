@@ -19,5 +19,5 @@ class Interview(Base):
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
 
     recruiter = relationship("User", back_populates="interviews")
-    questions = relationship("Question", back_populates="interview", cascade="all, delete-orphan", order_by="Question.position")
-    sessions = relationship("InterviewSession", back_populates="interview", cascade="all, delete-orphan")
+    questions = relationship("Question", back_populates="interview", cascade="all, delete-orphan", order_by="Question.position", lazy="selectin")
+    sessions = relationship("InterviewSession", back_populates="interview", cascade="all, delete-orphan", lazy="selectin")

@@ -58,8 +58,16 @@ async def verify_clerk_token(token: str) -> Dict[str, Any]:
 
 async def get_or_create_user(db: AsyncSession, payload: Dict[str, Any]) -> User:
     clerk_id = payload.get("sub") or payload.get("user_id") or payload.get("uid")
-    email = payload.get("email")
+    if not clerk_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Clerk token payload: missing sub")
 
+    # Check if user already exists in DB
+    statement = select(User).where(User.clerk_id == clerk_id)
+    result = await db.execute(statement)
+    user = result.scalars().first()
+
+    # Resolve email from various possible payload properties
+    email = payload.get("email") or payload.get("email_address")
     if not email:
         email_addresses = payload.get("email_addresses") or []
         if isinstance(email_addresses, list) and email_addresses:
@@ -72,27 +80,24 @@ async def get_or_create_user(db: AsyncSession, payload: Dict[str, Any]) -> User:
             if primary:
                 email = primary.get("email_address") or primary.get("email")
 
-    if not clerk_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Clerk token payload")
-
-    statement = select(User).where(User.clerk_id == clerk_id)
-    result = await db.execute(statement)
-    user = result.scalars().first()
-
+    # Resolve role from payload metadata or default to candidate
     role = "candidate"
-    public_metadata = payload.get("public_metadata") or {}
-    if isinstance(public_metadata, dict):
-        role = public_metadata.get("role", role)
+    meta = payload.get("public_metadata") or payload.get("unsafe_metadata") or payload.get("metadata") or {}
+    if isinstance(meta, dict) and meta.get("role"):
+        role = meta.get("role")
+    elif payload.get("role"):
+        role = payload.get("role")
 
     if user is None:
+        # Fallback email for Clerk tokens that don't include email claim by default
         if not email:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Clerk token payload")
+            email = f"{clerk_id}@user.clerk"
 
         user = User(
             clerk_id=clerk_id,
             email=email,
-            first_name=payload.get("first_name") or payload.get("name"),
-            last_name=payload.get("last_name"),
+            first_name=payload.get("first_name") or payload.get("name") or payload.get("given_name"),
+            last_name=payload.get("last_name") or payload.get("family_name"),
             role=role,
         )
         db.add(user)
@@ -100,10 +105,16 @@ async def get_or_create_user(db: AsyncSession, payload: Dict[str, Any]) -> User:
         await db.refresh(user)
         return user
 
-    if user.role != role or (email and user.email != email):
+    # User already exists in DB: update role/email if explicitly provided
+    updated = False
+    if email and user.email != email and "@user.clerk" not in email:
+        user.email = email
+        updated = True
+    if role != "candidate" and user.role != role:
         user.role = role
-        if email:
-            user.email = email
+        updated = True
+
+    if updated:
         await db.commit()
         await db.refresh(user)
 

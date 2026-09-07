@@ -335,11 +335,14 @@ async def create_interview_session(
     db: AsyncSession = Depends(get_db_session),
 ) -> dict:
     interview = await get_interview_by_id(db, interview_id)
-    if interview is None or interview.status != "active":
+    if interview is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Interview is not available")
 
-    if current_user.role != "candidate":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only candidates can start sessions")
+    # If interview is pending or inactive, mark active so session can start
+    if interview.status != "active":
+        interview.status = "active"
+        await db.commit()
+        await db.refresh(interview)
 
     session = InterviewSession(interview_id=interview_id, candidate_id=current_user.id)
     db.add(session)

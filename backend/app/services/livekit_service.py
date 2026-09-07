@@ -1,6 +1,4 @@
-from livekit.api import AccessToken
-from livekit.api.access_token import VideoGrants
-
+from livekit.api import AccessToken, VideoGrants
 from app.core.config import settings
 
 
@@ -12,18 +10,18 @@ def create_livekit_token(
     grant = VideoGrants(
         room_join=True,
         room=room_name,
-        room_create=False,
+        room_create=True,
     )
 
-    token = AccessToken(
-        settings.LIVEKIT_API_KEY,
-        settings.LIVEKIT_API_SECRET,
+    token = (
+        AccessToken(
+            settings.LIVEKIT_API_KEY,
+            settings.LIVEKIT_API_SECRET,
+        )
+        .with_identity(identity)
+        .with_name(identity)
+        .with_grants(grant)
     )
-
-    token.identity = identity
-    token.name = identity
-
-    token.add_grant(grant)
 
     return token.to_jwt()
 

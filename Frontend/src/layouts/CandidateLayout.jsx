@@ -12,7 +12,24 @@ export function CandidateLayout() {
             subtitle="Candidate Portal"
             nameClassName="text-sm"
           />
-          <UserButton afterSignOutUrl="/" />
+          <div className="flex items-center gap-4">
+            <nav className="flex items-center gap-1 text-xs font-semibold">
+              <a
+                href="/candidate/dashboard"
+                className="px-3 py-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-subtle transition-all"
+              >
+                Dashboard
+              </a>
+              <a
+                href="/candidate/practice"
+                className="px-3 py-1.5 rounded-lg text-brand-primary bg-brand-primary/10 hover:bg-brand-primary/20 transition-all font-bold flex items-center gap-1"
+              >
+                <span className="w-2 h-2 rounded-full bg-brand-primary animate-pulse" />
+                Practice Mode
+              </a>
+            </nav>
+            <UserButton afterSignOutUrl="/" />
+          </div>
         </div>
       </header>
 

@@ -15,6 +15,7 @@ import {
   CandidatesPage,
   CandidatePortalPage,
   CandidateDashboardPage,
+  PracticeDashboardPage,
   InterviewRoomPage,
   ReportsPage,
   ProfilePage,
@@ -73,6 +74,10 @@ export const router = createBrowserRouter([
           {
             path: '/candidate/dashboard',
             element: <LazyPage><CandidateDashboardPage /></LazyPage>,
+          },
+          {
+            path: '/candidate/practice',
+            element: <LazyPage><PracticeDashboardPage /></LazyPage>,
           },
         ],
       },

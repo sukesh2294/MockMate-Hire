@@ -13,6 +13,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_core.tools import tool
 
+load_dotenv()
+load_dotenv(".env")
 load_dotenv(".env.local")
 
 # Cached global vectorstore to prevent reloading and re-indexing on every session
@@ -59,8 +61,9 @@ def get_vectorstore() -> Chroma:
 
 # -------------------- Build your Interview RAG pipeline --------------------
 def create_workflow(session_id: str, candidate_id: str, questions_list: list[str]):
+    model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash"
+        model=model_name
     )
 
     vectorstore = get_vectorstore()
@@ -149,7 +152,7 @@ def create_workflow(session_id: str, candidate_id: str, questions_list: list[str
             return "tool_executor"
         return "end"
 
-    def call_llm(state: InterviewState) -> InterviewState:
+    async def call_llm(state: InterviewState) -> InterviewState:
         """Main LLM call that handles the interview conversation."""
         # Dynamically build structured questions from the interview list
         questions_str = ""
@@ -174,11 +177,28 @@ def create_workflow(session_id: str, candidate_id: str, questions_list: list[str
             "- If you don't have specific company information, say so honestly and offer to connect them with someone who might know more"
         )
         
-        msgs = [SystemMessage(content=system_prompt)] + list(state["messages"])
-        message = llm.invoke(msgs)
+        raw_msgs = [SystemMessage(content=system_prompt)] + list(state["messages"])
+        valid_msgs = []
+        for m in raw_msgs:
+            if hasattr(m, "content") and m.content and (not isinstance(m.content, str) or m.content.strip()):
+                valid_msgs.append(m)
+            elif isinstance(m, ToolMessage):
+                valid_msgs.append(m)
+
+        # Gemini API requires at least one non-System message in contents
+        has_content_msg = any(not isinstance(m, SystemMessage) for m in valid_msgs)
+        if not has_content_msg:
+            valid_msgs.append(HumanMessage(content="Hello! Please begin the interview and ask the first question."))
+
+        message = await llm.ainvoke(valid_msgs)
+        if hasattr(message, "content"):
+            if callable(message.content):
+                message.content = str(message.content())
+            elif not isinstance(message.content, str):
+                message.content = str(message.content)
         return {"messages": [message]}
 
-    def tool_executor(state: InterviewState) -> InterviewState:
+    async def tool_executor(state: InterviewState) -> InterviewState:
         """Execute tool calls from the LLM's response."""
         import asyncio
         tool_calls = state["messages"][-1].tool_calls
@@ -191,21 +211,9 @@ def create_workflow(session_id: str, candidate_id: str, questions_list: list[str
             print(f"Running tool: {tool_name}")
 
             if tool_name == "company_info_tool":
-                result = company_info_tool.invoke(tool_args)
+                result = await asyncio.to_thread(company_info_tool.invoke, tool_args)
             elif tool_name == "record_answer_tool":
-                # record_answer_tool is an async function, we need to run it in the event loop
-                try:
-                    loop = asyncio.get_event_loop()
-                except RuntimeError:
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-
-                if loop.is_running():
-                    # If the event loop is already running, run it as a future
-                    future = asyncio.run_coroutine_threadsafe(record_answer_tool.ainvoke(tool_args), loop)
-                    result = future.result()
-                else:
-                    result = loop.run_until_complete(record_answer_tool.ainvoke(tool_args))
+                result = await record_answer_tool.ainvoke(tool_args)
             else:
                 result = f"Unknown tool: {tool_name}"
 

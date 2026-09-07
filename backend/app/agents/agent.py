@@ -275,7 +275,7 @@ async def my_agent(ctx: agents.JobContext):
                     questions = DOMAIN_QUESTIONS_FALLBACK.get(
                         sess.topic,
                         DOMAIN_QUESTIONS_FALLBACK["Python Backend"],
-                    ][:sess.total_questions]
+                    )[:sess.total_questions]
                 else:
                     q_stmt = select(Question).where(Question.interview_id == sess.interview_id).order_by(Question.position)
                     q_res = await session_db.execute(q_stmt)
